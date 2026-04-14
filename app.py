@@ -11,6 +11,7 @@ import os
 import pickle
 import base64
 import hashlib
+import json
 
 app = Flask(__name__)
 
@@ -245,9 +246,9 @@ def deserialize():
 
     if data:
         try:
-            # VULNERABLE: Unpickling untrusted data
-            decoded = base64.b64decode(data)
-            obj = pickle.loads(decoded)
+            # FIXED: Use JSON instead of pickle for deserialization
+            decoded = base64.b64decode(data).decode('utf-8')
+            obj = json.loads(decoded)
             return f'''
             <html>
             <body>
@@ -265,7 +266,7 @@ def deserialize():
         <body>
             <h1>Deserialize Data</h1>
             <form action="/deserialize" method="get">
-                <input type="text" name="data" placeholder="Enter base64 encoded pickle data">
+                <input type="text" name="data" placeholder="Enter base64 encoded JSON data">
                 <input type="submit" value="Deserialize">
             </form>
             <p><a href="/">Back</a></p>
