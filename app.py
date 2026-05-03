@@ -5,7 +5,7 @@ WARNING: This application contains INTENTIONAL security vulnerabilities
 DO NOT deploy to production!
 """
 
-from flask import Flask, request, render_template_string, redirect
+from flask import Flask, request, render_template_string, redirect, escape
 import sqlite3
 import os
 import pickle
@@ -125,8 +125,8 @@ def search():
 @app.route('/comment', methods=['GET', 'POST'])
 def comment():
     if request.method == 'POST':
-        user = request.form.get('user', 'Anonymous')
-        comment_text = request.form.get('comment', '')
+        user = escape(request.form.get('user', 'Anonymous'))
+        comment_text = escape(request.form.get('comment', ''))
 
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
@@ -143,10 +143,10 @@ def comment():
     comments = cursor.fetchall()
     conn.close()
 
-    # VULNERABLE: No output encoding
+    # FIXED: Use output encoding
     comments_html = ''
     for user, comment_text in comments:
-        comments_html += f'<div><strong>{user}:</strong> {comment_text}</div>'
+        comments_html += f'<div><strong>{escape(user)}:</strong> {escape(comment_text)}</div>'
 
     return f'''
     <html>
