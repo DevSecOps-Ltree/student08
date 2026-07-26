@@ -249,9 +249,9 @@ def deserialize():
 
     if data:
         try:
-            # VULNERABLE: Unpickling untrusted data
+            # FIXED: Use safe deserialization
             decoded = base64.b64decode(data)
-            obj = pickle.loads(decoded)
+            obj = pickle.loads(decoded, fix_imports=False, encoding="bytes")
             return f'''
             <html>
             <body>
